@@ -67,10 +67,10 @@ class ParamsQuery(BaseModel):
 def query_function(
     params: ParamsQuery,
 ) -> StreamingResponse:
-    from demo_data import contexts, llm_response, related_questions_future
-    contexts = contexts
-    llm_response = llm_response
+    from demo_data import related_questions_future
     related_questions_future = related_questions_future
+    from backend.searcher import search_to_llms
+    contexts, llm_response = search_to_llms(query=params.query)
     return StreamingResponse(
         stream_and_upload_to_kv(
             contexts, llm_response, related_questions_future, params.search_uuid
