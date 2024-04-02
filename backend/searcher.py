@@ -1,12 +1,14 @@
 import traceback
 from loguru import logger
 
-from .search_bing import SearchBing
 from .prompt import _rag_query_text
+from .search_bing import search_bing
+from .search_confluence import search_confluence
 
 from demo_data import llm_response
 
 llm_response
+
 
 def get_related_questions(self, query, contexts):
     """
@@ -65,10 +67,11 @@ def get_related_questions(self, query, contexts):
 
 
 def search_to_llms(query, should_do_related_questions=False, generate_related_questions=False):
-    contexts = SearchBing().search(query=query)
+    contexts = search_bing.search(query=query) or []
+    contexts_confluence = search_confluence.search(query=query) or []
     system_prompt = _rag_query_text.format(
         context="\n\n".join(
-            [f"[[citation:{i+1}]] {c['snippet']}" for i, c in enumerate(contexts)]
+            [f"[[citation:{i+1}]] {c['snippet']}" for i, c in enumerate(contexts_confluence + contexts)]
         )
     )
     # llm_response = llm_response
